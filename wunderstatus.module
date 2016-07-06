@@ -1,0 +1,66 @@
+<?php
+
+/**
+ * @file
+ * Contains wunderstatus.module.
+ */
+
+use Drupal\Core\Link;
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function wunderstatus_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    case 'help.page.wunderstatus':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Wunderstatus connector sends site status data to central service') . '</p>';
+      return $output;
+
+    default:
+  }
+}
+
+/**
+ * Implements hook_requirements().
+ */
+function wunderstatus_requirements($phase) {
+  $requirements = [];
+  $state = \Drupal::state();
+  $settings_link = Link::createFromRoute('Configure', 'wunderstatus.settings');
+
+  if ($phase == 'runtime') {
+    $requirements['wunderstatus_key']['title'] = t('Wunderstatus authentication key');
+    if (!empty($state->get('wunderstatus_key'))) {
+      $requirements['wunderstatus_key']['value'] = $state->get('wunderstatus_key');
+    } else {
+      $requirements['wunderstatus_key']['value'] = 'Wunderstatus authentication key not specified.';
+      $requirements['wunderstatus_key']['description'] = $settings_link;
+      $requirements['wunderstatus_key']['severity'] = REQUIREMENT_ERROR;
+    }
+    $requirements['wunderstatus_manager_url']['title'] = t('Wunderstatus manager URL');
+    if (!empty($state->get('manager_site_url'))) {
+      $requirements['wunderstatus_manager_url']['value'] = $state->get('manager_site_url');
+    } else {
+      $requirements['wunderstatus_manager_url']['value'] = 'Wunderstatus manager URL not specified.';
+      $requirements['wunderstatus_manager_url']['description'] = $settings_link;
+      $requirements['wunderstatus_manager_url']['severity'] = REQUIREMENT_ERROR;
+    }
+  }
+  return $requirements;
+}
+
+/**
+ * Implements hook_cron().
+ *
+ * Sends module information once per day.
+ */
+function wunderstatus_cron() {
+  $last_cron_run = \Drupal::state()->get('system.cron_last');
+
+  if ((time() - 24 * 60 * 60) > $last_cron_run || $last_cron_run == NULL) {
+    \Drupal::service('wunderstatus.service')->sendModuleInfo();
+  }
+}
