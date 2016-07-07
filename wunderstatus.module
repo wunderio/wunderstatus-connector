@@ -78,10 +78,23 @@ function wunderstatus_admin() {
 
   $form['authentication']['wunderstatus_key'] = [
     '#type' => 'textfield',
-    '#title' => t('Wunderstatus site Key'),
-    '#description' => t('Site key used for authentication'),
+    '#title' => t('Wunderstatus authentication key'),
     '#required' => TRUE,
     '#default_value' => variable_get('wunderstatus_key', ''),
+  ];
+
+
+  $form['manager_site'] = [
+    '#type' => 'fieldset',
+    '#title' => t('Wunderstatus manager'),
+  ];
+
+  $form['manager_site']['wunderstatus_manager_site_url'] = [
+    '#type' => 'textfield',
+    '#title' => t('URL'),
+    '#maxlength' => 60,
+    '#size' => 65,
+    '#default_value' => wunderstatus_get_manager_endpoint_url() ?: 'http://local.wsmanager.com:8080/api/info',
   ];
 
   return system_settings_form($form);
@@ -129,7 +142,7 @@ function wunderstatus_get_key() {
 }
 
 function wunderstatus_get_manager_endpoint_url() {
-  return variable_get('manager_site_url', 'https://wunderstatus.stage.wunder.io/api/info');
+  return variable_get('wunderstatus_manager_site_url', 'https://wunderstatus.stage.wunder.io/api/info');
 }
 
 function wunderstatus_build_request_data() {
