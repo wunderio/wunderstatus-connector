@@ -104,24 +104,27 @@ function wunderstatus_get_manager_endpoint_url() {
 function wunderstatus_build_request_data() {
   return json_encode([
     'key' => wunderstatus_get_key(),
-    'modules' => wunderstatus_get_projects(),
+    'modules' => wunderstatus_get_version_info(),
     'siteName' => wunderstatus_get_site_name(),
     'siteUuid' => wunderstatus_get_site_uuid(),
   ]);
 }
 
 /**
- * Fetches an array of installed and enabled projects.
- */
-function wunderstatus_get_projects() {
+  * @return array Modules and core system versions. Includes:
+  * - Drupal core version
+  * - PHP version
+  * - Database version
+  */
+function wunderstatus_get_version_info() {
   $all_modules = system_get_info('module');
   $version_info = [];
   $version_info[] = wunderstatus_get_drupal_version();
 
   foreach ($all_modules as $module_name => $module) {
-    if (!empty($module['package']) && $module['package'] == 'Core') {
-      // Skip core modules.
-    } else {
+    $core_module = !empty($module['package']) && $module['package'] == 'Core';
+
+    if (!$core_module) {
       $version = !empty($module['version']) ? $module['version'] : t('Unspecified');
       $version_info[] = $module_name . ' ' . $version;
     }
