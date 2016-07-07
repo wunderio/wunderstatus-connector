@@ -32,32 +32,32 @@ class WunderstatusSettings extends ConfigFormBase {
   public function buildForm(array $form, FormStateInterface $form_state) {
     $state = \Drupal::state();
     
-    $form['authentication'] = array(
+    $form['authentication'] = [
       '#type' => 'fieldset',
       '#title' => t('Authentication'),
-    );
+    ];
     
-    $form['authentication']['wunderstatus_key'] = array(
+    $form['authentication']['wunderstatus_key'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Wunderstatus authentication key'),
       '#maxlength' => 60,
       '#size' => 65,
       '#required' => TRUE,
       '#default_value' => $state->get('wunderstatus_key'),
-    );
+    ];
 
-    $form['manager_site'] = array(
+    $form['manager_site'] = [
       '#type' => 'fieldset',
       '#title' => t('Wunderstatus manager'),
-    );
+    ];
 
-    $form['manager_site']['manager_site_url'] = array(
+    $form['manager_site']['manager_site_url'] = [
       '#type' => 'textfield',
       '#title' => $this->t('URL'),
       '#maxlength' => 60,
       '#size' => 65,
       '#default_value' => $state->get('manager_site_url'),
-    );
+    ];
 
     return parent::buildForm($form, $form_state);
   }
