@@ -186,5 +186,12 @@ function wunderstatus_get_site_name() {
 }
 
 function wunderstatus_get_site_uuid() {
-  return 'TODO SITE UUID';
+  $site_uuid = variable_get('wunderstatus_site_uuid');
+
+  if (empty($site_uuid)) {
+    $site_uuid = md5(time());
+    variable_set('wunderstatus_site_uuid', $site_uuid);
+  }
+
+  return $site_uuid;
 }
