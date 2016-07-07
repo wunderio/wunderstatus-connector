@@ -68,7 +68,7 @@ function wunderstatus_admin() {
 function wunderstatus_cron() {
   $last_cron_run = variable_get('cron_last');
 
-  if ((time() - 24 * 60 * 60) > $last_cron_run || $last_cron_run == NULL) {
+  if ((time() - 24 * 60 * 60) > $last_cron_run) {
     wunderstatus_send_info();
   }
 }
