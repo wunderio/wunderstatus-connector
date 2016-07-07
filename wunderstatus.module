@@ -94,7 +94,7 @@ function wunderstatus_admin() {
     '#title' => t('URL'),
     '#maxlength' => 60,
     '#size' => 65,
-    '#default_value' => wunderstatus_get_manager_endpoint_url() ?: 'http://local.wsmanager.com:8080/api/info',
+    '#default_value' => wunderstatus_get_manager_endpoint_url(),
   ];
 
   return system_settings_form($form);
