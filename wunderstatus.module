@@ -98,7 +98,7 @@ function wunderstatus_get_key() {
 }
 
 function wunderstatus_get_manager_endpoint_url() {
-  return variable_get('manager_site_url', 'https://wunderstatus.stage.wunder.io/site/information');
+  return variable_get('manager_site_url', 'https://wunderstatus.stage.wunder.io/api/info');
 }
 
 function wunderstatus_build_request_data() {
