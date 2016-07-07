@@ -1,0 +1,5 @@
+name = "Wunderstatus Connector"
+description = "Wunderstatus connector sends site status data to central service"
+package = "Wunderstatus"
+core = 7.x
+configure = admin/config/system/wunderstatus

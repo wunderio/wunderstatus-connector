@@ -1,0 +1,135 @@
+<?php
+
+/**
+ * @file
+ * Main module file for SendGrid Integration.
+ *
+ * Provides module configuration and help functionality.
+ */
+
+
+/**
+ * Implements hook_menu().
+ */
+function wunderstatus_menu() {
+  $items = [];
+
+  $items['admin/config/system/wunderstatus'] = [
+    'title' => 'Wunderstatus settings',
+    'description' => 'Wunderstatus settings',
+    'page callback' =>'drupal_get_form',
+    'page arguments' => ['wunderstatus_admin'],
+    'access callback' => 'user_access',
+    'access arguments' => ['administer wunderstatus settings'],
+  ];
+
+  return $items;
+}
+
+/**
+ * Implements hook_permissions().
+ */
+function wunderstatus_permission() {
+  return [
+    'administer wunderstatus settings' => [
+      'title' => t('Administer Wunderstatus settings'),
+      'description' => t('Configure Wunderstatus options like authentication key'),
+    ],
+  ];
+}
+
+/**
+ * Provides Settings Form.
+ */
+function wunderstatus_admin() {
+  $form = [];
+
+  $form['authentication'] = [
+    '#type' => 'fieldset',
+    '#title' => t('Authentication'),
+  ];
+
+  $form['authentication']['wunderstatus_key'] = [
+    '#type' => 'textfield',
+    '#title' => t('Wunderstatus site Key'),
+    '#description' => t('Site key used for authentication'),
+    '#required' => TRUE,
+    '#default_value' => variable_get('wunderstatus_key', ''),
+  ];
+
+  return system_settings_form($form);
+}
+
+/**
+ * Implements hook_cron().
+ *
+ * Sends module information once per day.
+ */
+function wunderstatus_cron() {
+  wunderstatus_send_info();
+}
+
+function wunderstatus_send_info() {
+  $result = FALSE;
+
+  if (empty(wunderstatus_get_key())) {
+    watchdog('wunderstatus', 'Wunderstatus authentication key is not set.', [], WATCHDOG_WARNING);
+  }
+  elseif (empty(wunderstatus_get_manager_endpoint_url())) {
+    watchdog('wunderstatus', 'Wunderstatus manager URL is not set.', [], WATCHDOG_WARNING);
+  }
+  else {
+    $options = [
+      'method' => 'POST',
+      'data' => wunderstatus_build_request_data(),
+      'timeout' => 5,
+      'headers' => ['Content-Type' => 'application/json'],
+    ];
+
+    $result = drupal_http_request(wunderstatus_get_manager_endpoint_url(), $options);
+    watchdog('Wunderstatus', 'Module information sent.', [], WATCHDOG_NOTICE, $link = NULL);
+  }
+
+  return $result;
+}
+
+/**
+ * Fetches an array of installed and enabled projects.
+ */
+function wunderstatus_get_projects() {
+  $all_modules = system_get_info('module');
+  $version_info = [];
+  $version_info[] = wunderstatus_get_drupal_version();
+
+  foreach ($all_modules as $module_name => $module) {
+    if (!empty($module['package']) && $module['package'] == 'Core') {
+      // Skip core modules.
+    } else {
+      $version = !empty($module['version']) ? $module['version'] : t('Unspecified');
+      $version_info[] = $module_name . ' ' . $version;
+    }
+  }
+  
+  return $version_info;
+}
+
+function wunderstatus_get_drupal_version() {
+  return 'Drupal ' . VERSION;
+}
+
+function wunderstatus_get_key() {
+  return variable_get('wunderstatus_key', '');
+}
+
+function wunderstatus_get_manager_endpoint_url() {
+  return variable_get('manager_site_url', 'https://wunderstatus.stage.wunder.io/site/information');
+}
+
+function wunderstatus_build_request_data() {
+  return json_encode([
+    'key' => wunderstatus_get_key(),
+    'modules' => wunderstatus_get_projects(),
+    'siteName' => 'TODO SITE NAME',
+    'siteUuid' => 'TODO SITE UUID',
+  ]);
+}
