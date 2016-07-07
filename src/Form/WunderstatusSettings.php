@@ -56,7 +56,7 @@ class WunderstatusSettings extends ConfigFormBase {
       '#title' => $this->t('URL'),
       '#maxlength' => 60,
       '#size' => 65,
-      '#default_value' => $state->get('manager_site_url') ?: 'http://local.wsmanager.com:8080/site/information',
+      '#default_value' => $state->get('manager_site_url') ?: 'http://local.wsmanager.com:8080/api/info',
     );
 
     return parent::buildForm($form, $form_state);
