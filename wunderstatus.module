@@ -101,12 +101,13 @@ function wunderstatus_cron() {
   $last_cron_run = variable_get('cron_last');
 
   if ((time() - 24 * 60 * 60) > $last_cron_run) {
-    wunderstatus_send_info();
+    $response = wunderstatus_send_info();
+    wunderstatus_handle_response($response);
   }
 }
 
 function wunderstatus_send_info() {
-  $result = FALSE;
+  $response = FALSE;
 
   if (empty(wunderstatus_get_key())) {
     wunderstatus_log('Wunderstatus authentication key is not set.', [], WATCHDOG_WARNING);
@@ -122,11 +123,25 @@ function wunderstatus_send_info() {
       'headers' => ['Content-Type' => 'application/json'],
     ];
 
-    $result = drupal_http_request(wunderstatus_get_manager_endpoint_url(), $options);
-    wunderstatus_log('Module information sent.', [], WATCHDOG_NOTICE, $link = NULL);
+    $response = drupal_http_request(wunderstatus_get_manager_endpoint_url(), $options);
   }
 
-  return $result;
+  return $response;
+}
+
+/**
+ * @param $response Object
+ */
+function wunderstatus_handle_response($response) {
+  if (isset($response->code) && in_array($response->code, [200])) {
+    wunderstatus_log('Status information sent.', [], WATCHDOG_NOTICE);
+  } else {
+    wunderstatus_log(
+      'Status information send failed. Response: @response',
+      ['@response' => print_r($response, TRUE)],
+      WATCHDOG_WARNING
+    );
+  }
 }
 
 function wunderstatus_get_key() {
