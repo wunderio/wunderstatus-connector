@@ -99,9 +99,11 @@ function wunderstatus_admin() {
  */
 function wunderstatus_cron() {
   $last_cron_run = variable_get('cron_last');
+  $last_successful_wunderstatus_run = wunderstatus_get_last_successful_run_timestamp();
   $twelve_hours_in_seconds = 43200;
-    
-  if ((time() - $twelve_hours_in_seconds) > $last_cron_run) {
+  $should_run = empty($last_successful_wunderstatus_run) || ($last_cron_run - $last_successful_wunderstatus_run) > $twelve_hours_in_seconds;
+
+  if ($should_run) {
     $response = wunderstatus_send_info();
     wunderstatus_handle_response($response);
   }
@@ -135,6 +137,7 @@ function wunderstatus_send_info() {
  */
 function wunderstatus_handle_response($response) {
   if (isset($response->code) && in_array($response->code, [200])) {
+    wunderstatus_update_last_successful_run_timestamp();
     wunderstatus_log('Status information sent.', [], WATCHDOG_NOTICE);
   } else {
     wunderstatus_log(
@@ -151,6 +154,14 @@ function wunderstatus_get_key() {
 
 function wunderstatus_get_manager_endpoint_url() {
   return variable_get('wunderstatus_manager_site_url', 'https://wunderstatus.stage.wunder.io/api/info');
+}
+
+function wunderstatus_get_last_successful_run_timestamp() {
+  return variable_get('wunderstatus_last_successful_run_timestamp');
+}
+
+function wunderstatus_update_last_successful_run_timestamp() {
+  variable_set('wunderstatus_last_successful_run_timestamp', time());
 }
 
 function wunderstatus_build_request_data() {
