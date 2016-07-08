@@ -31,7 +31,7 @@ class WunderstatusService {
    * @return bool|mixed|\Psr\Http\Message\ResponseInterface
    */
   public function sendModuleInfo() {
-    $result = FALSE;
+    $response = FALSE;
 
     if (empty($this->getKey())) {
       $this->logger->warning('Wunderstatus authentication key is not set.');
@@ -41,16 +41,15 @@ class WunderstatusService {
     }
     else {
       try {
-        $result = $this->client->request('POST', $this->getManagerEndpointUrl(), ['body' => $this->buildRequestData()]);
-        $this->logger->notice('Module information sent.');
+        $response = $this->client->request('POST', $this->getManagerEndpointUrl(), ['body' => $this->buildRequestData()]);
+        $this->logger->notice('Status information sent.');
       }
       catch (RequestException $e) {
-        $this->logger->error($e->getResponse()->getBody());
-        $result = FALSE;
+        $this->handleNonOkResponse($e);
       }
     }
 
-    return $result;
+    return $response;
   }
 
   private function getKey() {
@@ -68,5 +67,18 @@ class WunderstatusService {
       'siteName' => \Drupal::config('system.site')->get('name'),
       'siteUuid' => \Drupal::config('system.site')->get('uuid'),
     ]);
+  }
+
+  private function handleNonOkResponse(RequestException $e) {
+    $response = $e->getResponse();
+
+    if ($response) {
+      $this->logger->warning(
+        'Status information send failed. Response: @response',
+        ['@response' => (string) $response->getBody()]
+      );
+    } else {
+      watchdog_exception('wunderstatus', $e);
+    }
   }
 }
