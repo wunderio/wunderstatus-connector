@@ -40,13 +40,13 @@ function wunderstatus_requirements($phase) {
       $requirements['wunderstatus_key']['description'] = $settings_link;
       $requirements['wunderstatus_key']['severity'] = REQUIREMENT_ERROR;
     }
-    $requirements['wunderstatus_manager_url']['title'] = t('Wunderstatus manager URL');
-    if (!empty($state->get('manager_site_url'))) {
-      $requirements['wunderstatus_manager_url']['value'] = $state->get('manager_site_url');
+    $requirements['wunderstatus_manager_endpoint_url']['title'] = t('Wunderstatus manager endpoint URL');
+    if (!empty($state->get('wunderstatus_manager_endpoint_url'))) {
+      $requirements['wunderstatus_manager_endpoint_url']['value'] = $state->get('wunderstatus_manager_endpoint_url');
     } else {
-      $requirements['wunderstatus_manager_url']['value'] = 'Wunderstatus manager URL not specified.';
-      $requirements['wunderstatus_manager_url']['description'] = $settings_link;
-      $requirements['wunderstatus_manager_url']['severity'] = REQUIREMENT_ERROR;
+      $requirements['wunderstatus_manager_endpoint_url']['value'] = 'Wunderstatus manager endpoint URL not specified.';
+      $requirements['wunderstatus_manager_endpoint_url']['description'] = $settings_link;
+      $requirements['wunderstatus_manager_endpoint_url']['severity'] = REQUIREMENT_ERROR;
     }
   }
   return $requirements;
