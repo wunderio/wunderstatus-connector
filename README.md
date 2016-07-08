@@ -8,7 +8,7 @@ core, enabled non-core modules, PHP and database system.
 ## Installation and setup
 
 Download and enable the module. Set the authentication key and manager site
-endpoint URL at module settings page.
+endpoint URL at the module settings page.
 
 ## Repo/branch
 
