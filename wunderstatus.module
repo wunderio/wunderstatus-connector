@@ -55,12 +55,13 @@ function wunderstatus_requirements($phase) {
 /**
  * Implements hook_cron().
  *
- * Sends module information once per day.
+ * Sends module information twice per day.
  */
 function wunderstatus_cron() {
   $last_cron_run = \Drupal::state()->get('system.cron_last');
-
-  if ((time() - 24 * 60 * 60) > $last_cron_run) {
+  $twelve_hours_in_seconds = 43200;
+  
+  if ((time() - $twelve_hours_in_seconds) > $last_cron_run) {
     \Drupal::service('wunderstatus.service')->sendModuleInfo();
   }
 }

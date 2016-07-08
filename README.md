@@ -1,9 +1,9 @@
 # Wunderstatus Connector (D8)
 
 Wunderstatus connector sends site status data to central service (see
-https://github.com/wunderkraut-fi/wunderstatus-manager/). The data is sent once
-per day (during system cron). The data includes version information of Drupal
-core, enabled non-core modules, PHP and database system.
+https://github.com/wunderkraut-fi/wunderstatus-manager/). The data is sent
+periodically (during system cron). The data includes version information of
+Drupal core, enabled non-core modules, PHP and database system.
 
 ## Installation and setup
 
