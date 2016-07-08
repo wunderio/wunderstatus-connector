@@ -59,9 +59,26 @@ function wunderstatus_requirements($phase) {
  */
 function wunderstatus_cron() {
   $last_cron_run = \Drupal::state()->get('system.cron_last');
+  $last_successful_wunderstatus_run = wunderstatus_get_last_successful_run_timestamp();
   $twelve_hours_in_seconds = 43200;
-  
-  if ((time() - $twelve_hours_in_seconds) > $last_cron_run) {
-    \Drupal::service('wunderstatus.service')->sendModuleInfo();
+  $should_run = empty($last_successful_wunderstatus_run) || ($last_cron_run - $last_successful_wunderstatus_run) > $twelve_hours_in_seconds;
+
+  if ($should_run) {
+    $response = \Drupal::service('wunderstatus.service')->sendModuleInfo();
+    wunderstatus_handle_response($response);
+  }
+}
+
+function wunderstatus_get_last_successful_run_timestamp() {
+  return \Drupal::state()->get('wunderstatus_last_successful_run_timestamp');
+}
+
+function wunderstatus_update_last_successful_run_timestamp() {
+  return \Drupal::state()->set('wunderstatus_last_successful_run_timestamp', time());
+}
+
+function wunderstatus_handle_response($response) {
+  if ($response) {
+    wunderstatus_update_last_successful_run_timestamp();
   }
 }
