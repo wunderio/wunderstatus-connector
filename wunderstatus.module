@@ -1,13 +1,6 @@
 <?php
 
 /**
- * @file
- * Main module file for SendGrid Integration.
- *
- * Provides module configuration and help functionality.
- */
-
-/**
  * Implements hook_requirements().
  */
 function wunderstatus_requirements($phase) {
@@ -83,7 +76,6 @@ function wunderstatus_admin() {
     '#default_value' => variable_get('wunderstatus_key', ''),
   ];
 
-
   $form['manager_site'] = [
     '#type' => 'fieldset',
     '#title' => t('Wunderstatus manager'),
@@ -117,10 +109,10 @@ function wunderstatus_send_info() {
   $result = FALSE;
 
   if (empty(wunderstatus_get_key())) {
-    watchdog('wunderstatus', 'Wunderstatus authentication key is not set.', [], WATCHDOG_WARNING);
+    wunderstatus_log('Wunderstatus authentication key is not set.', [], WATCHDOG_WARNING);
   }
   elseif (empty(wunderstatus_get_manager_endpoint_url())) {
-    watchdog('wunderstatus', 'Wunderstatus manager URL is not set.', [], WATCHDOG_WARNING);
+    wunderstatus_log('Wunderstatus manager URL is not set.', [], WATCHDOG_WARNING);
   }
   else {
     $options = [
@@ -131,7 +123,7 @@ function wunderstatus_send_info() {
     ];
 
     $result = drupal_http_request(wunderstatus_get_manager_endpoint_url(), $options);
-    watchdog('wunderstatus', 'Module information sent.', [], WATCHDOG_NOTICE, $link = NULL);
+    wunderstatus_log('Module information sent.', [], WATCHDOG_NOTICE, $link = NULL);
   }
 
   return $result;
@@ -194,4 +186,8 @@ function wunderstatus_get_site_uuid() {
   }
 
   return $site_uuid;
+}
+
+function wunderstatus_log($message, $variables = array(), $severity = WATCHDOG_NOTICE, $link = NULL) {
+  watchdog('wunderstatus', $message, $variables, $severity, $link);
 }
