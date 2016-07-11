@@ -137,7 +137,7 @@ class WunderstatusServiceTest extends UnitTestCase {
   /**
    * @test
    */
-  public function sendModuleInfoShouldBuildRequestOptionsCorrectly() {
+  public function sendModuleInfoShouldPostCorrectDataToEndpointUrl() {
     $expectedRequestOptions = [
       'auth' => [
         self::WUNDERSTATUS_AUTH_USERNAME,
@@ -151,7 +151,7 @@ class WunderstatusServiceTest extends UnitTestCase {
       ])
     ];
 
-    $this->client->request(Argument::any(), Argument::any(), $expectedRequestOptions)->shouldBeCalled();
+    $this->client->request('POST', self::WUNDERSTATUS_MANAGER_ENDPOINT_URL, $expectedRequestOptions)->shouldBeCalled();
 
     $this->wunderstatusService->sendModuleInfo();
   }
