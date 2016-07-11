@@ -17,10 +17,11 @@ class WunderstatusInfoCollector {
   public function getVersionInfo() {
     $modules = $this->getNonCoreModules();
 
-    $versions = [];
-    $versions[] = $this->getDrupalVersion();
-    $versions[] = $this->getPhpVersion();
-    $versions[] = $this->getDatabaseSystemVersion();
+    $versions = [
+      $this->getDrupalVersion(), 
+      $this->getPhpVersion(),
+      $this->getDatabaseSystemVersion()
+    ];
 
     foreach ($modules as $module) {
       $versions[] = $module->getName() . ' ' . $this->getModuleVersion($module);
