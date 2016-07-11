@@ -56,6 +56,7 @@ class WunderstatusSettings extends ConfigFormBase {
       '#title' => $this->t('URL'),
       '#maxlength' => 128,
       '#size' => 65,
+      '#required' => TRUE,
       '#default_value' => $state->get('wunderstatus_manager_endpoint_url'),
     ];
 
