@@ -16,6 +16,7 @@ use Prophecy\Argument;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @group wunderstatus
@@ -23,6 +24,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class WunderstatusServiceTest extends UnitTestCase {
 
   const MODULES = ['module_a 1.0', 'module_b 2.1'];
+  const RESPONSE_BODY = '{"key":"value"}';
   const SITE_NAME = 'Site name';
   const SITE_UUID = 'Site UUID';
   const WUNDERSTATUS_AUTH_PASSWORD = 'Password';
@@ -64,7 +66,10 @@ class WunderstatusServiceTest extends UnitTestCase {
     parent::setUp();
 
     $this->request = $this->prophesize(RequestInterface::class);
+
     $this->response = $this->prophesize(ResponseInterface::class);
+    $this->response->getBody()->willReturn(self::RESPONSE_BODY);
+    $this->response->getStatusCode()->willReturn(Response::HTTP_OK);
 
     $this->client = $this->prophesize(Client::class);
     $this->client->request('POST', self::WUNDERSTATUS_MANAGER_ENDPOINT_URL, Argument::any())->willReturn($this->response);
@@ -168,12 +173,26 @@ class WunderstatusServiceTest extends UnitTestCase {
   /**
    * @test
    */
-  public function sendModuleShouldHandleExceptionsGracefully() {
-    $message = 'Exception';
-    $this->client->request(Argument::any(), Argument::any(), Argument::any())->willThrow(new RequestException($message, $this->request->reveal()));
+  public function sendModuleShouldReturnFalseAndLogWarningWhenTheClientThrowsAnException() {
+    $this->client = $this->prophesize(Client::class);
+    
+    $this->client->request(Argument::any(), Argument::any(), Argument::any())->willThrow(
+      new RequestException('Exception', $this->request->reveal(), $this->response->reveal())
+    );
+
+    $this->logger->warning(
+      'Status information send failed. Response: @response',
+      ['@response' => self::RESPONSE_BODY])
+      ->shouldBeCalled();
+
+    $this->wunderstatusService = new WunderstatusService(
+      $this->client->reveal(),
+      $this->logger->reveal(),
+      $this->wunderstatusInfoCollector->reveal()
+    );
 
     $response = $this->wunderstatusService->sendModuleInfo();
 
-    $this->assertInstanceOf(ResponseInterface::class, $response);
+    $this->assertFalse($response);
   }
 }
