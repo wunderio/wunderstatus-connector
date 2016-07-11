@@ -3,6 +3,7 @@
 namespace Drupal\wunderstatus;
 
 use Drupal\Core\Database\Database;
+use Drupal\Core\Database\Install\Tasks;
 use Drupal\Core\Extension\Extension;
 
 class WunderstatusInfoCollector {
@@ -50,6 +51,7 @@ class WunderstatusInfoCollector {
 
   private function getDatabaseSystemVersion() {
     $class = Database::getConnection()->getDriverClass('Install\\Tasks');
+    /** @var $tasks Tasks */
     $tasks = new $class();
 
     return $tasks->name() . ' ' . Database::getConnection()->version();
