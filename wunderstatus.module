@@ -86,6 +86,7 @@ function wunderstatus_admin() {
     '#title' => t('URL'),
     '#maxlength' => 120,
     '#size' => 65,
+    '#required' => TRUE,
     '#default_value' => wunderstatus_get_manager_endpoint_url(),
   ];
 
