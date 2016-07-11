@@ -5,8 +5,10 @@ namespace Drupal\wunderstatus;
 use Drupal\Core\Database\Database;
 use Drupal\Core\Database\Install\Tasks;
 use Drupal\Core\Extension\Extension;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 
 class WunderstatusInfoCollector {
+  use StringTranslationTrait;
 
   /**
    * @return array Modules and core system versions. Includes:
@@ -50,7 +52,7 @@ class WunderstatusInfoCollector {
     return 'Drupal ' . \Drupal::VERSION;
   }
 
-  private function getDatabaseSystemVersion() {
+  protected function getDatabaseSystemVersion() {
     $class = Database::getConnection()->getDriverClass('Install\\Tasks');
     /** @var $tasks Tasks */
     $tasks = new $class();
@@ -59,8 +61,8 @@ class WunderstatusInfoCollector {
   }
 
   private function getModuleVersion(Extension $module) {
-    $infoFile = file($module->getPathname());
-    $version = t('Unspecified');
+    $infoFile = $this->getInfoFile($module);
+    $version = $this->t('Unspecified');
 
     foreach ($infoFile as $lineNumber => $line) {
       if (strpos($line, 'version:') !== FALSE) {
@@ -69,6 +71,14 @@ class WunderstatusInfoCollector {
     }
 
     return $version;
+  }
+  
+  /**
+   * @param Extension $module
+   * @return array
+   */
+  protected function getInfoFile(Extension $module) {
+    return file($module->getPathname());
   }
 
   private function parseVersion($versionString) {
