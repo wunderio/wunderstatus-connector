@@ -6,8 +6,12 @@ use Drupal\Component\Serialization\Json;
 use Drupal\Core\Logger\LoggerChannel;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\RequestOptions;
 
 class WunderstatusService {
+
+  const CONNECT_TIMEOUT_SECONDS = 5;
+  const REQUEST_TIMEOUT_SECONDS = 5;
 
   /** @var Client */
   protected $client;
@@ -61,13 +65,15 @@ class WunderstatusService {
   }
 
   private function buildRequestOptions() {
-    $options = [];
+    $options = [
+      RequestOptions::BODY => $this->buildRequestBody(),
+      RequestOptions::CONNECT_TIMEOUT => self::CONNECT_TIMEOUT_SECONDS,
+      RequestOptions::TIMEOUT => self::REQUEST_TIMEOUT_SECONDS
+    ];
 
     if (!empty($this->getAuthUsername()) && !empty($this->getAuthPassword())) {
-      $options['auth'] = [$this->getAuthUsername(), $this->getAuthPassword()];
+      $options[RequestOptions::AUTH] = [$this->getAuthUsername(), $this->getAuthPassword()];
     }
-
-    $options['body'] = $this->buildRequestBody();
 
     return $options;
   }

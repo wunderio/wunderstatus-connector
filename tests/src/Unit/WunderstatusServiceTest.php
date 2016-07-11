@@ -12,6 +12,7 @@ use Drupal\Tests\UnitTestCase;
 use Drupal\wunderstatus\WunderstatusInfoCollector;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\RequestOptions;
 use Prophecy\Argument;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -144,16 +145,18 @@ class WunderstatusServiceTest extends UnitTestCase {
    */
   public function sendModuleInfoShouldPostCorrectDataToEndpointUrl() {
     $expectedRequestOptions = [
-      'auth' => [
-        self::WUNDERSTATUS_AUTH_USERNAME,
-        self::WUNDERSTATUS_AUTH_PASSWORD
-      ],
-      'body' => Json::encode([
+      RequestOptions::BODY => Json::encode([
         'key' => self::WUNDERSTATUS_KEY,
         'modules' => self::MODULES,
         'siteName' => self::SITE_NAME,
         'siteUuid' => self::SITE_UUID
-      ])
+      ]),
+      RequestOptions::CONNECT_TIMEOUT => WunderstatusService::CONNECT_TIMEOUT_SECONDS,
+      RequestOptions::TIMEOUT => WunderstatusService::REQUEST_TIMEOUT_SECONDS,
+      RequestOptions::AUTH => [
+        self::WUNDERSTATUS_AUTH_USERNAME,
+        self::WUNDERSTATUS_AUTH_PASSWORD
+      ]
     ];
 
     $this->client->request('POST', self::WUNDERSTATUS_MANAGER_ENDPOINT_URL, $expectedRequestOptions)->shouldBeCalled();
