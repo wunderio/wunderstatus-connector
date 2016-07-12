@@ -2,8 +2,11 @@
 
 namespace Drupal\wunderstatus\Form;
 
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\State\StateInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Class WunderstatusSettings.
@@ -11,6 +14,21 @@ use Drupal\Core\Form\FormStateInterface;
  * @package Drupal\wunderstatus\Form
  */
 class WunderstatusSettings extends ConfigFormBase {
+  
+  /** @var StateInterface */
+  protected $state;
+  
+  public function __construct(ConfigFactoryInterface $config_factory, StateInterface $state) {
+    parent::__construct($config_factory);
+    $this->state = $state;
+  }
+  
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('config.factory'),
+      $container->get('state')
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -30,8 +48,6 @@ class WunderstatusSettings extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    $state = \Drupal::state();
-    
     $form['authentication'] = [
       '#type' => 'fieldset',
       '#title' => t('Authentication'),
@@ -43,7 +59,7 @@ class WunderstatusSettings extends ConfigFormBase {
       '#maxlength' => 128,
       '#size' => 65,
       '#required' => TRUE,
-      '#default_value' => $state->get('wunderstatus_key'),
+      '#default_value' => $this->state->get('wunderstatus_key'),
     ];
 
     $form['manager_site'] = [
@@ -57,7 +73,7 @@ class WunderstatusSettings extends ConfigFormBase {
       '#maxlength' => 128,
       '#size' => 65,
       '#required' => TRUE,
-      '#default_value' => $state->get('wunderstatus_manager_endpoint_url'),
+      '#default_value' => $this->state->get('wunderstatus_manager_endpoint_url'),
     ];
 
     $form['manager_site']['wunderstatus_auth_username'] = [
@@ -65,7 +81,7 @@ class WunderstatusSettings extends ConfigFormBase {
       '#title' => $this->t('Auth username'),
       '#maxlength' => 128,
       '#size' => 65,
-      '#default_value' => $state->get('wunderstatus_auth_username'),
+      '#default_value' => $this->state->get('wunderstatus_auth_username'),
     ];
 
     $form['manager_site']['wunderstatus_auth_password'] = [
@@ -73,7 +89,7 @@ class WunderstatusSettings extends ConfigFormBase {
       '#title' => $this->t('Auth password'),
       '#maxlength' => 128,
       '#size' => 65,
-      '#default_value' => $state->get('wunderstatus_auth_password'),
+      '#default_value' => $this->state->get('wunderstatus_auth_password'),
     ];
 
     return parent::buildForm($form, $form_state);
@@ -91,9 +107,9 @@ class WunderstatusSettings extends ConfigFormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     parent::submitForm($form, $form_state);
-    \Drupal::state()->set('wunderstatus_key', $form_state->getValue('wunderstatus_key'));
-    \Drupal::state()->set('wunderstatus_manager_endpoint_url', $form_state->getValue('wunderstatus_manager_endpoint_url'));
-    \Drupal::state()->set('wunderstatus_auth_username', $form_state->getValue('wunderstatus_auth_username'));
-    \Drupal::state()->set('wunderstatus_auth_password', $form_state->getValue('wunderstatus_auth_password'));
+    $this->state->set('wunderstatus_key', $form_state->getValue('wunderstatus_key'));
+    $this->state->set('wunderstatus_manager_endpoint_url', $form_state->getValue('wunderstatus_manager_endpoint_url'));
+    $this->state->set('wunderstatus_auth_username', $form_state->getValue('wunderstatus_auth_username'));
+    $this->state->set('wunderstatus_auth_password', $form_state->getValue('wunderstatus_auth_password'));
   }
 }
