@@ -42,10 +42,9 @@ class WunderstatusInfoCollectorTest extends UnitTestCase {
     $this->moduleHandler->getModuleList()->willReturn($this->moduleList);
 
     $this->container = $this->prophesize(ContainerInterface::class);
-    $this->container->get('module_handler')->willReturn($this->moduleHandler);
     \Drupal::setContainer($this->container->reveal());
 
-    $this->wunderstatusInfoCollector = new WunderstatusInfoCollectorTestDouble();
+    $this->wunderstatusInfoCollector = new WunderstatusInfoCollectorTestDouble($this->moduleHandler->reveal());
   }
 
   /**

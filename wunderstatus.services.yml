@@ -5,6 +5,7 @@ services:
 
   wunderstatus.info_collector:
     class: Drupal\wunderstatus\WunderstatusInfoCollector
+    arguments: ['@module_handler']
 
   wunderstatus.service:
     class: Drupal\wunderstatus\WunderstatusService

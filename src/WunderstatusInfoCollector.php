@@ -5,10 +5,18 @@ namespace Drupal\wunderstatus;
 use Drupal\Core\Database\Database;
 use Drupal\Core\Database\Install\Tasks;
 use Drupal\Core\Extension\Extension;
+use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 
 class WunderstatusInfoCollector {
   use StringTranslationTrait;
+
+  /** @var ModuleHandlerInterface */
+  protected $moduleHandler;
+
+  public function __construct(ModuleHandlerInterface $moduleHandler) {
+    $this->moduleHandler = $moduleHandler;
+  }
 
   /**
    * @return array Modules and core system versions. Includes:
@@ -36,7 +44,7 @@ class WunderstatusInfoCollector {
    * @return Extension[]
    */
   private function getNonCoreModules() {
-    $modules = \Drupal::moduleHandler()->getModuleList();
+    $modules = $this->moduleHandler->getModuleList();
 
     return array_filter($modules, function ($module) {
       /** @var $module Extension */
