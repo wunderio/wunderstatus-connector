@@ -9,4 +9,4 @@ services:
 
   wunderstatus.service:
     class: Drupal\wunderstatus\WunderstatusService
-    arguments: ['@http_client', '@logger.channel.wunderstatus', '@wunderstatus.info_collector']
+    arguments: ['@http_client', '@logger.channel.wunderstatus', '@state', '@wunderstatus.info_collector']

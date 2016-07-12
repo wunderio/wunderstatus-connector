@@ -95,12 +95,12 @@ class WunderstatusServiceTest extends UnitTestCase {
 
     $this->container = $this->prophesize(ContainerInterface::class);
     $this->container->get('config.factory')->willReturn($this->configFactory);
-    $this->container->get('state')->willReturn($this->state);
     \Drupal::setContainer($this->container->reveal());
     
     $this->wunderstatusService = new WunderstatusService(
       $this->client->reveal(),
       $this->logger->reveal(),
+      $this->state->reveal(),
       $this->wunderstatusInfoCollector->reveal()
     );
   }
@@ -191,6 +191,7 @@ class WunderstatusServiceTest extends UnitTestCase {
     $this->wunderstatusService = new WunderstatusService(
       $this->client->reveal(),
       $this->logger->reveal(),
+      $this->state->reveal(),
       $this->wunderstatusInfoCollector->reveal()
     );
 

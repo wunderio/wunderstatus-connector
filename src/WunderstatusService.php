@@ -4,6 +4,7 @@ namespace Drupal\wunderstatus;
 
 use Drupal\Component\Serialization\Json;
 use Drupal\Core\Logger\LoggerChannel;
+use Drupal\Core\State\StateInterface;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\RequestOptions;
@@ -18,13 +19,17 @@ class WunderstatusService {
 
   /** @var LoggerChannel */
   protected $logger;
+  
+  /** @var StateInterface */
+  protected $state;
 
   /** @var WunderstatusInfoCollector */
   protected $wunderstatusInfoCollector;
 
-  public function __construct(Client $client, LoggerChannel $logger, WunderstatusInfoCollector $wunderstatusInfoCollector) {
+  public function __construct(Client $client, LoggerChannel $logger, StateInterface $state, WunderstatusInfoCollector $wunderstatusInfoCollector) {
     $this->client = $client;
     $this->logger = $logger;
+    $this->state = $state;
     $this->wunderstatusInfoCollector = $wunderstatusInfoCollector;
   }
 
@@ -57,11 +62,11 @@ class WunderstatusService {
   }
 
   private function getKey() {
-    return \Drupal::state()->get('wunderstatus_key');
+    return $this->state->get('wunderstatus_key');
   }
 
   private function getManagerEndpointUrl() {
-    return \Drupal::state()->get('wunderstatus_manager_endpoint_url');
+    return $this->state->get('wunderstatus_manager_endpoint_url');
   }
 
   private function buildRequestOptions() {
@@ -79,11 +84,11 @@ class WunderstatusService {
   }
 
   private function getAuthUsername() {
-    return \Drupal::state()->get('wunderstatus_auth_username');
+    return $this->state->get('wunderstatus_auth_username');
   }
 
   private function getAuthPassword() {
-    return \Drupal::state()->get('wunderstatus_auth_password');
+    return $this->state->get('wunderstatus_auth_password');
   }
 
   private function buildRequestBody() {
