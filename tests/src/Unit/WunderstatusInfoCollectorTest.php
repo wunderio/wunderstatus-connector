@@ -6,7 +6,6 @@ use Drupal\Core\Extension\Extension;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Tests\UnitTestCase;
 use Drupal\wunderstatus\WunderstatusInfoCollector;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * @group wunderstatus
@@ -15,9 +14,6 @@ class WunderstatusInfoCollectorTest extends UnitTestCase {
 
   const DATABASE_SYSTEM_VERSION = 'Database system version';
   const MODULE_VERSION = '8.x-1.0';
-
-  /** @var ContainerInterface */
-  private $container;
 
   /** @var ModuleHandlerInterface */
   private $moduleHandler;
@@ -40,9 +36,6 @@ class WunderstatusInfoCollectorTest extends UnitTestCase {
 
     $this->moduleHandler = $this->prophesize(ModuleHandlerInterface::class);
     $this->moduleHandler->getModuleList()->willReturn($this->moduleList);
-
-    $this->container = $this->prophesize(ContainerInterface::class);
-    \Drupal::setContainer($this->container->reveal());
 
     $this->wunderstatusInfoCollector = new WunderstatusInfoCollectorTestDouble($this->moduleHandler->reveal());
   }
