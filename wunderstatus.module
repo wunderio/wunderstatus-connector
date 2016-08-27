@@ -90,6 +90,20 @@ function wunderstatus_admin() {
     '#default_value' => wunderstatus_get_manager_endpoint_url(),
   ];
 
+  $form['manager_site']['wunderstatus_auth_username'] = [
+    '#type' => 'textfield',
+    '#title' => t('Auth username'),
+    '#required' => FALSE,
+    '#default_value' => variable_get('wunderstatus_auth_username'),
+  ];
+
+  $form['manager_site']['wunderstatus_auth_password'] = [
+    '#type' => 'textfield',
+    '#title' => t('Auth password'),
+    '#required' => FALSE,
+    '#default_value' => variable_get('wunderstatus_auth_password'),
+  ];
+
   return system_settings_form($form);
 }
 
@@ -120,11 +134,26 @@ function wunderstatus_send_info() {
     wunderstatus_log('Wunderstatus manager endpoint URL is not set.', [], WATCHDOG_WARNING);
   }
   else {
+
+    $headers[] = [
+      'Content-Type' => 'application/json',
+    ];
+
+    $wunderstatus_auth_username = variable_get('wunderstatus_auth_username');
+    $wunderstatus_auth_password = variable_get('wunderstatus_auth_password');
+
+    // Include the auth header only if the credentials are set.
+    if (!empty($wunderstatus_auth_password) && !empty($wunderstatus_auth_username)) {
+      $headers[] = [
+        'Authorization' => 'Basic ' . base64_encode($wunderstatus_auth_username . ':' . $wunderstatus_auth_password),
+      ];
+    }
+
     $options = [
       'method' => 'POST',
       'data' => wunderstatus_build_request_body(),
       'timeout' => 5,
-      'headers' => ['Content-Type' => 'application/json'],
+      'headers' => $headers,
     ];
 
     $response = drupal_http_request(wunderstatus_get_manager_endpoint_url(), $options);
@@ -193,7 +222,7 @@ function wunderstatus_get_version_info() {
       $version_info[] = $module_name . ' ' . $version;
     }
   }
-  
+
   return $version_info;
 }
 
