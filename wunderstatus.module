@@ -135,18 +135,16 @@ function wunderstatus_send_info() {
   }
   else {
 
-    $headers[] = [
-      'Content-Type' => 'application/json',
-    ];
+    $headers = array();
+
+    $headers['Content-Type'] = 'application/json';
 
     $wunderstatus_auth_username = variable_get('wunderstatus_auth_username');
     $wunderstatus_auth_password = variable_get('wunderstatus_auth_password');
 
     // Include the auth header only if the credentials are set.
     if (!empty($wunderstatus_auth_password) && !empty($wunderstatus_auth_username)) {
-      $headers[] = [
-        'Authorization' => 'Basic ' . base64_encode($wunderstatus_auth_username . ':' . $wunderstatus_auth_password),
-      ];
+      $headers['Authorization'] = 'Basic ' . base64_encode($wunderstatus_auth_username . ':' . $wunderstatus_auth_password);
     }
 
     $options = [
