@@ -7,6 +7,7 @@ use Drupal\Core\Database\Install\Tasks;
 use Drupal\Core\Extension\Extension;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
+use GuzzleHttp\Client;
 
 class WunderstatusInfoCollector {
   use StringTranslationTrait;
@@ -34,7 +35,7 @@ class WunderstatusInfoCollector {
     ];
 
     foreach ($modules as $module) {
-      $versions[] = $module->getName() . ' ' . $this->getModuleVersion($module);
+      $versions[] = $module->getName() . ' ' . $this->getModuleVersion($module) . ' ' . $this->getModuleStatus($module);
     }
 
     return $versions;
@@ -94,5 +95,25 @@ class WunderstatusInfoCollector {
     $version = str_replace("'", '', $version);
 
     return trim($version);
+  }
+
+  private function getModuleStatus(Extension $module) {
+    $url = $this->buildUpdateUrl($module);
+    $client = \Drupal::httpClient();
+    $res = $client->request('GET', $url, [
+        'headers' => [
+          'Accept' => 'application/xml'
+        ]
+        ]);
+    $data = $res->getBody();
+
+    return $data;
+  }
+
+  private function buildUpdateUrl(Extension $module) {
+    $url = 'http://updates.drupal.org/release-history';
+    $name = $module->getName();
+    $url .= '/' . $name . '/' . \Drupal::CORE_COMPATIBILITY;
+    return $url;
   }
 }
