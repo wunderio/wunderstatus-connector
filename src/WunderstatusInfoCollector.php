@@ -106,8 +106,8 @@ class WunderstatusInfoCollector {
         ]
         ]);
     $data = $res->getBody();
-
-    return $data;
+    $release_information = $this->parseXml($data);
+    return $release_information;
   }
 
   private function buildUpdateUrl(Extension $module) {
@@ -115,5 +115,55 @@ class WunderstatusInfoCollector {
     $name = $module->getName();
     $url .= '/' . $name . '/' . \Drupal::CORE_COMPATIBILITY;
     return $url;
+  }
+
+/**
+ * Parses the XML of the Drupal release history info files.
+ *
+ * @param $xml_data
+ *   A raw XML string of available release data for a given project.
+ *
+ * @return
+ *   Array of parsed data about releases for a given project, or NULL if there
+ *   was an error parsing the string.
+ */
+  public function parseXml($xml_data) {
+    try {
+      $xml = new \SimpleXMLElement($xml_data);
+    }
+    catch (\Exception $e) {
+      // SimpleXMLElement::__construct produces an E_WARNING error message for
+      // each error found in the XML data and throws an exception if errors
+      // were detected. Catch any exception and return failure (NULL).
+      return NULL;
+    }
+    // If there is no valid project data, the XML is invalid, so return failure.
+    if (!isset($xml->short_name)) {
+      return NULL;
+    }
+    $data = array();
+    foreach ($xml as $k => $v) {
+      $data[$k] = (string) $v;
+    }
+    $data['releases'] = array();
+    if (isset($xml->releases)) {
+      foreach ($xml->releases->children() as $release) {
+        $version = (string) $release->version;
+        $data['releases'][$version] = array();
+        foreach ($release->children() as $k => $v) {
+          $data['releases'][$version][$k] = (string) $v;
+        }
+        $data['releases'][$version]['terms'] = array();
+        if ($release->terms) {
+          foreach ($release->terms->children() as $term) {
+            if (!isset($data['releases'][$version]['terms'][(string) $term->name])) {
+              $data['releases'][$version]['terms'][(string) $term->name] = array();
+            }
+            $data['releases'][$version]['terms'][(string) $term->name][] = (string) $term->value;
+          }
+        }
+      }
+    }
+    return $data;
   }
 }
